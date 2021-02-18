@@ -8,12 +8,17 @@ interface ResponseType {
 export default async (
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
-): Promise<void> => {
-  const { db } = await connect();
-
-  const response = await db.collection('users').insertOne({
-    nome: 'carlos teste',
-    age: '29',
-  });
-  res.status(200).json(response.ops[0]);
+): Promise<any> => {
+  if (req.method == 'POST') {
+    const { data } = req.body;
+    if (!data) {
+      res.status(400).json({ message: 'No data informed' });
+      return;
+    }
+    const { db } = await connect();
+    const response = await db.collection('users').insertOne(data);
+    res.status(200).json(response.ops[0]);
+  } else {
+    res.status(400).json({ message: 'wrong method' });
+  }
 };
